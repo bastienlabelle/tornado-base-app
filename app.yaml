@@ -1,0 +1,8 @@
+%YAML 1.2
+---
+port: 8889
+cookie_secret: change_this
+static_path: static
+template_path: templates
+xsrf_cookies: False
+debug: True
