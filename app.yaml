@@ -1,8 +1,15 @@
 %YAML 1.2
 ---
-port: 8889
-cookie_secret: change_this
-static_path: static
-template_path: templates
-xsrf_cookies: False
-debug: True
+port: 8888
+settings:
+    cookie_secret: your_cookie_secret
+    static_path: __path__/static
+    template_path: __path__/templates
+    twitter_consumer_key: your_twitter_consumer_key
+    twitter_consumer_secret: your_twitter_consumer_secret
+    login_url: /
+extra_settings: # overrides default settings when called (merging)
+    dev:
+        twitter_consumer_key: your_dev_twitter_consumer_key
+        twitter_consumer_secret: your_dev_twitter_consumer_secret
+        debug: True

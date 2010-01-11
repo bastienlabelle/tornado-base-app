@@ -17,28 +17,19 @@ import tornado.web
 import tornado.auth
 import tornado.options
 import tornado.autoreload
+from tornado.options import define, options
+
 
 import os
 import sys
 
+define('version', default=None,help='Version settings (default: production)')
+
 class App(tornado.web.Application):
-	def __init__(self,config):
+	def __init__(self,settings):
 		handlers = [
 			(r'/', MainHandler)
 		]
-		settings = {
-			'static_path' : os.path.join(
-				os.path.dirname(__file__),
-				config['static_path']
-			),
-			'template_path' : os.path.join(
-				os.path.dirname(__file__),
-				config['template_path']
-			),
-			'cookie_secret' : config['cookie_secret'],
-			'xsrf_cookies' : config['xsrf_cookies'],
-			'version' : __version__
-		}
 		
 		tornado.web.Application.__init__(
 			self,
@@ -62,14 +53,30 @@ if __name__ == '__main__':
 		config = yaml.load(f)
 		f.close()
 	except IOError:
-		print 'Invalid or missing config file %s' % options.config
+		print 'Invalid or missing config file %s' % __config__
+	
+	# if no settings, we go away
+	if 'settings' not in config:
+		print 'No default configuration found'
 		sys.exit(1)
 	
-	#print config
-		
+	if options.version and options.version in config['extra_settings']:
+		settings = dict(
+			config['settings'],
+			**config['extra_settings'][options.version]
+		)
+	else:
+		settings = config['settings']
 	
-	http_server = tornado.httpserver.HTTPServer(App(config))
+	for k,v in settings.items():
+		if k.endswith('_path'):
+			settings[k] = settings[k].replace(
+				'__path__',
+				os.path.dirname(__file__)
+			)
+	
+	http_server = tornado.httpserver.HTTPServer(App(settings))
 	http_server.listen(config['port'])
-	if config['debug']:
+	if 'debug' in settings and settings['debug'] is True:
 		tornado.autoreload.start()
 	tornado.ioloop.IOLoop.instance().start()
