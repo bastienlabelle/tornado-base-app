@@ -34,7 +34,7 @@ class App(tornado.web.Application):
 		tornado.web.Application.__init__(
 			self,
 			handlers,
-			settings
+			**settings
 		)
 
 class BaseHandler(tornado.web.RequestHandler):
